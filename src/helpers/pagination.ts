@@ -1,11 +1,11 @@
-type IOptions = {
+export type PaginationOptions = {
   page?: number;
   limit?: number;
-  sortBy?: string;
-  sortOrder?: string;
+  sort_by?: string;
+  sort_order?: string;
 };
 
-type IOptionsResult = {
+type OptionsResult = {
   page: number;
   limit: number;
   skip: number;
@@ -13,13 +13,13 @@ type IOptionsResult = {
   sortOrder: string;
 };
 
-const calculatePagination = (options: IOptions): IOptionsResult => {
+const calculatePagination = (options: PaginationOptions): OptionsResult => {
   const page = Number(options.page || 1);
   const limit = Number(options.limit || 10);
   const skip = (page - 1) * limit;
 
-  const sortBy = options.sortBy || 'createdAt';
-  const sortOrder = options.sortOrder || 'desc';
+  const sortBy = options.sort_by || 'createdAt';
+  const sortOrder = options.sort_order || 'desc';
 
   return {
     page,
@@ -30,6 +30,4 @@ const calculatePagination = (options: IOptions): IOptionsResult => {
   };
 };
 
-export const paginationHelpers = {
-  calculatePagination,
-};
+export default calculatePagination;
