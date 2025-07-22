@@ -1,3 +1,5 @@
+import { User } from '@prisma/client';
+import bcrypt from 'bcrypt';
 import httpStatus from 'http-status';
 import { Secret } from 'jsonwebtoken';
 import config from '../../../config';
@@ -95,7 +97,21 @@ const refreshToken = async (token: string): Promise<IRefreshTokenResponse> => {
   };
 };
 
+const createUser = async (data: User): Promise<User> => {
+  //hashed the user password
+  data.password = await bcrypt.hash(
+    data.password,
+    Number(config.bycrypt_salt_rounds)
+  );
+
+  const result = await prisma.user.create({
+    data,
+  });
+  return result;
+};
+
 export const AuthService = {
   loginUser,
   refreshToken,
+  createUser,
 };

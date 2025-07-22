@@ -10,6 +10,7 @@ const loginZodSchema = z.object({
     }),
   }),
 });
+
 const refreshTokenZodSchema = z.object({
   cookies: z.object({
     refreshToken: z.string({
@@ -18,7 +19,19 @@ const refreshTokenZodSchema = z.object({
   }),
 });
 
+const createUserZodSchema = z.object({
+  body: z.object({
+    email: z.string({
+      required_error: 'email is required',
+    }),
+    password: z.string({
+      required_error: 'password is required',
+    }),
+  }),
+});
+
 export const AuthValidation = {
   loginZodSchema,
   refreshTokenZodSchema,
+  createUserZodSchema,
 };
