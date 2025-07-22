@@ -83,6 +83,95 @@ const getBookingById = async (req: Request, res: Response) => {
   return res.json({ success: true, data: booking });
 };
 
+const getWeeklyBookings = async (req: Request, res: Response) => {
+  try {
+    const { date } = req.query;
+
+    if (!date || typeof date !== 'string') {
+      return res.status(httpStatus.BAD_REQUEST).json({
+        success: false,
+        message: 'Date parameter is required in query string.',
+      });
+    }
+
+    const startDate = new Date(date);
+    const endDate = new Date(startDate);
+    endDate.setDate(endDate.getDate() + 6); // Include 7 days total
+
+    const bookings = await prisma.booking.findMany({
+      where: {
+        startTime: {
+          gte: startDate,
+          lte: new Date(endDate.setHours(23, 59, 59, 999)), // till end of 7th day
+        },
+      },
+      orderBy: {
+        startTime: 'asc',
+      },
+    });
+
+    res.status(httpStatus.OK).json({
+      success: true,
+      message: 'Weekly bookings fetched successfully',
+      data: bookings,
+    });
+  } catch (error) {
+    console.error('Weekly booking fetch error:', error);
+    res.status(httpStatus.INTERNAL_SERVER_ERROR).json({
+      success: false,
+      message: 'Something went wrong while fetching bookings',
+    });
+  }
+};
+
+const checkSlotAvailability = async (req: Request, res: Response) => {
+  try {
+    const { resource, startTime, endTime } = req.query;
+
+    if (!resource || !startTime || !endTime) {
+      return res.status(400).json({ message: 'Missing required parameters' });
+    }
+
+    const start = parseISO(startTime as string);
+    const end = parseISO(endTime as string);
+
+    if (isBefore(end, start)) {
+      return res
+        .status(400)
+        .json({ message: 'End time must be after start time' });
+    }
+
+    const diffInMinutes = (end.getTime() - start.getTime()) / (1000 * 60);
+    if (diffInMinutes < 15) {
+      return res
+        .status(400)
+        .json({ message: 'Minimum duration is 15 minutes' });
+    }
+
+    const bufferedStart = subMinutes(start, BUFFER_MINUTES);
+    const bufferedEnd = addMinutes(end, BUFFER_MINUTES);
+
+    const conflict = await prisma.booking.findFirst({
+      where: {
+        resource: resource as string,
+        AND: [
+          { startTime: { lte: bufferedEnd } },
+          { endTime: { gte: bufferedStart } },
+        ],
+      },
+    });
+
+    if (conflict) {
+      return res.status(200).json({ available: false });
+    }
+
+    return res.status(200).json({ available: true });
+  } catch (error) {
+    console.error('Error checking slot availability', error);
+    return res.status(500).json({ message: 'Server error' });
+  }
+};
+
 const deleteBooking = async (req: Request, res: Response) => {
   const { id } = req.params;
 
@@ -97,5 +186,7 @@ export default {
   createBooking,
   getPaginatedBookings,
   getBookingById,
+  getWeeklyBookings,
+  checkSlotAvailability,
   deleteBooking,
 };

@@ -6,6 +6,14 @@ import bookingValidator from './bookings.validation';
 const bookingRouter = Router();
 
 bookingRouter
+  .route('/weekly-booking')
+  .get(bookingsController.getWeeklyBookings);
+
+bookingRouter
+  .route('/available-slots')
+  .get(bookingsController.checkSlotAvailability);
+
+bookingRouter
   .route('/')
   .post(
     validateRequest(bookingValidator.createBookingSchema),
