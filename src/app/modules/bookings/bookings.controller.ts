@@ -83,6 +83,47 @@ const getBookingById = async (req: Request, res: Response) => {
   return res.json({ success: true, data: booking });
 };
 
+const getWeeklyBookings = async (req: Request, res: Response) => {
+  try {
+    const { date } = req.query;
+
+    if (!date || typeof date !== 'string') {
+      return res.status(httpStatus.BAD_REQUEST).json({
+        success: false,
+        message: 'Date parameter is required in query string.',
+      });
+    }
+
+    const startDate = new Date(date);
+    const endDate = new Date(startDate);
+    endDate.setDate(endDate.getDate() + 6); // Include 7 days total
+
+    const bookings = await prisma.booking.findMany({
+      where: {
+        startTime: {
+          gte: startDate,
+          lte: new Date(endDate.setHours(23, 59, 59, 999)), // till end of 7th day
+        },
+      },
+      orderBy: {
+        startTime: 'asc',
+      },
+    });
+
+    res.status(httpStatus.OK).json({
+      success: true,
+      message: 'Weekly bookings fetched successfully',
+      data: bookings,
+    });
+  } catch (error) {
+    console.error('Weekly booking fetch error:', error);
+    res.status(httpStatus.INTERNAL_SERVER_ERROR).json({
+      success: false,
+      message: 'Something went wrong while fetching bookings',
+    });
+  }
+};
+
 const deleteBooking = async (req: Request, res: Response) => {
   const { id } = req.params;
 
@@ -97,5 +138,6 @@ export default {
   createBooking,
   getPaginatedBookings,
   getBookingById,
+  getWeeklyBookings,
   deleteBooking,
 };
