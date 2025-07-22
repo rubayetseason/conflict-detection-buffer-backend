@@ -9,7 +9,7 @@ import bookingService from './booking.service';
 const BUFFER_MINUTES = 10;
 
 const createBooking = async (req: Request, res: Response) => {
-  const { resource, requestedBy, startTime, endTime } = req.body;
+  const { resource, requestedBy, startTime, endTime, userId } = req.body;
   const start = parseISO(startTime);
   const end = parseISO(endTime);
 
@@ -24,25 +24,21 @@ const createBooking = async (req: Request, res: Response) => {
     return res.status(400).json({ message: 'Minimum duration is 15 minutes' });
   }
 
-  // Check for conflicts (with 10-minute buffer)
+  const bufferedStart = subMinutes(start, BUFFER_MINUTES);
+  const bufferedEnd = addMinutes(end, BUFFER_MINUTES);
+
   const conflict = await prisma.booking.findFirst({
     where: {
       resource,
-      OR: [
-        {
-          startTime: {
-            lte: addMinutes(start, BUFFER_MINUTES),
-          },
-          endTime: {
-            gte: subMinutes(end, BUFFER_MINUTES),
-          },
-        },
+      AND: [
+        { startTime: { lte: bufferedEnd } },
+        { endTime: { gte: bufferedStart } },
       ],
     },
   });
 
   if (conflict) {
-    return res.status(409).json({
+    return res.status(400).json({
       message: 'Booking conflicts with an existing one (includes buffer time).',
     });
   }
@@ -53,7 +49,7 @@ const createBooking = async (req: Request, res: Response) => {
       requestedBy,
       startTime: start,
       endTime: end,
-      userId: req.user?.id ?? undefined, // if using auth
+      userId,
     },
   });
 

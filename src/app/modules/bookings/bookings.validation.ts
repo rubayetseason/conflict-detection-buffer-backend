@@ -10,6 +10,7 @@ export const createBookingSchema = z.object({
     endTime: z.string().refine(val => !isNaN(Date.parse(val)), {
       message: 'Invalid end time',
     }),
+    userId: z.string().min(1, 'User ID is required'),
   }),
 });
 
