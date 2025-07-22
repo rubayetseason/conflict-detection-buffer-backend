@@ -46,7 +46,19 @@ const getPaginatedBookings = async (
     });
   }
 
+  if (Object.keys(otherFilters).length > 0) {
+    conditions.push({
+      AND: Object.keys(otherFilters).map(key => ({
+        [key]: {
+          equals: otherFilters[key as keyof typeof otherFilters],
+        },
+      })),
+    });
+  }
+
   const whereCondition = conditions.length ? { AND: conditions } : {};
+
+  console.log(sortBy, sortOrder);
 
   const [result, total] = await Promise.all([
     prisma.booking.findMany({

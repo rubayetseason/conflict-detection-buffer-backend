@@ -36,18 +36,18 @@ const loginUser = async (payload: ILoginUser): Promise<ILoginUserResponse> => {
     throw new ApiError(httpStatus.UNAUTHORIZED, 'Password is incorrect');
   }
 
-  const { email: userEmail } = checkUserExist;
+  const { email: userEmail, id } = checkUserExist;
 
   //access token
   const accessToken = jwtHelpers.createToken(
-    { userEmail },
+    { id, userEmail },
     config.jwt.secret as Secret,
     { expiresIn: config.jwt.expires_in }
   );
 
   //refresh token
   const refreshToken = jwtHelpers.createToken(
-    { userEmail },
+    { id, userEmail },
     config.jwt.refresh_secret as Secret,
     { expiresIn: config.jwt.refresh_expires_in }
   );
@@ -87,6 +87,7 @@ const refreshToken = async (token: string): Promise<IRefreshTokenResponse> => {
   const accessToken = jwtHelpers.createToken(
     {
       email: checkUserExist?.email,
+      id: checkUserExist?.id,
     },
     config.jwt.secret as Secret,
     { expiresIn: config.jwt.expires_in }
