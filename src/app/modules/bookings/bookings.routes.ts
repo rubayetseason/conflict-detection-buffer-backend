@@ -21,9 +21,6 @@ bookingRouter
   )
   .get(bookingsController.getPaginatedBookings);
 
-bookingRouter
-  .route('/:id')
-  .get(bookingsController.getBookingById)
-  .delete(bookingsController.deleteBooking);
+bookingRouter.route('/:id').delete(bookingsController.deleteBooking);
 
 export default bookingRouter;
