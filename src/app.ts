@@ -6,13 +6,23 @@ import httpStatus from 'http-status';
 import xss from 'xss-clean';
 import globalErrorHandler from './app/middlewares/globalErrorHandler';
 import routes from './app/routes';
-import corsConfig from './config/cors';
 
 const app: Application = express();
 
 app.use(helmet());
 app.use(xss());
-app.use(cors(corsConfig));
+app.use(
+  cors({
+    origin: [
+      'http://localhost:5173',
+      'http://localhost:3000',
+      'https://conflict-detection-buffer-frontend.vercel.app',
+      'https://conflict-detection-buffer-frontend.vercel.app/',
+    ],
+    allowedHeaders: ['Content-Type', 'Authorization'],
+    credentials: true,
+  })
+);
 app.use(cookieParser());
 
 app.use(express.json());
