@@ -24,6 +24,10 @@ const createBooking = async (req: Request, res: Response) => {
     return res.status(400).json({ message: 'Minimum duration is 15 minutes' });
   }
 
+  if (diffInMinutes > 120) {
+    return res.status(400).json({ message: 'Maximum duration is 2 hours' });
+  }
+
   const bufferedStart = subMinutes(start, BUFFER_MINUTES);
   const bufferedEnd = addMinutes(end, BUFFER_MINUTES);
 
@@ -146,6 +150,9 @@ const checkSlotAvailability = async (req: Request, res: Response) => {
       return res
         .status(400)
         .json({ message: 'Minimum duration is 15 minutes' });
+    }
+    if (diffInMinutes > 120) {
+      return res.status(400).json({ message: 'Maximum duration is 2 hours' });
     }
 
     const bufferedStart = subMinutes(start, BUFFER_MINUTES);
