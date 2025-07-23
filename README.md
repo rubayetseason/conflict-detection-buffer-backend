@@ -94,6 +94,8 @@ prisma/
 
 - `POST /api/v1/bookings` – Create booking with buffer conflict check
 - `GET /api/v1/bookings` – Fetch bookings with optional filters
+- `GET /api/v1/bookings/available-slots` – Check slot availability
+- `DELETE /api/v1/bookings/:bookingId` – Delete booking
 
 ### Auth
 
