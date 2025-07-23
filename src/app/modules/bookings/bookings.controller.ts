@@ -15,7 +15,7 @@ const createBooking = catchAsync(async (req, res) => {
 });
 
 const getPaginatedBookings = catchAsync(async (req, res) => {
-  const filters = pick(req.query, ['resource', 'requestedBy', 'date']);
+const filters = pick(req.query, ['resource', 'requestedBy', 'startDate', 'endDate']);
   const options = pick(req.query, ['page', 'limit', 'sort_by', 'sort_order']);
 
   const result = await bookingService.getPaginatedBookings(filters, options);

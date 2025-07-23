@@ -1,7 +1,8 @@
 export type IBookingFilters = {
   resource?: string;
   requestedBy?: string;
-  date?: string;
+  startDate?: string;
+  endDate?: string;
 };
 
 export type SlotCheckParams = {

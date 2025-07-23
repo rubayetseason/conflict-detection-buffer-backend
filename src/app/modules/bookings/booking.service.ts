@@ -80,7 +80,7 @@ const getPaginatedBookings = async (
     sortOrder = 'asc',
   } = calculatePagination(options);
 
-  const { date, ...otherFilters } = filters;
+  const { startDate, endDate, ...otherFilters } = filters;
 
   const conditions: Prisma.BookingWhereInput[] = [];
 
@@ -93,24 +93,12 @@ const getPaginatedBookings = async (
     });
   }
 
-  // Date range filter (full day)
-  if (date) {
-    const start = new Date(date);
-    start.setHours(0, 0, 0, 0);
-    const end = new Date(date);
-    end.setHours(23, 59, 59, 999);
+  if (startDate && endDate) {
     conditions.push({
-      startTime: { gte: start, lte: end },
-    });
-  }
-
-  if (Object.keys(otherFilters).length > 0) {
-    conditions.push({
-      AND: Object.keys(otherFilters).map(key => ({
-        [key]: {
-          equals: otherFilters[key as keyof typeof otherFilters],
-        },
-      })),
+      startTime: {
+        gte: new Date(startDate),
+        lte: new Date(endDate),
+      },
     });
   }
 
