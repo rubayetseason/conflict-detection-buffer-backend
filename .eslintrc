@@ -20,10 +20,11 @@
     "@typescript-eslint/explicit-module-boundary-types": "off"
   },
   "env": {
-    "browser": true,
-    "es2021": true,
-    "node":true
-  },
+  "browser": true,
+  "es2021": true,
+  "node": true,
+  "jest": true
+},
   "globals": {
     "process":"readonly"
   }

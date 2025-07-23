@@ -1,3 +1,4 @@
+import cookieParser from 'cookie-parser';
 import cors from 'cors';
 import express, { Application, NextFunction, Request, Response } from 'express';
 import helmet from 'helmet';
@@ -5,7 +6,6 @@ import httpStatus from 'http-status';
 import xss from 'xss-clean';
 import globalErrorHandler from './app/middlewares/globalErrorHandler';
 import routes from './app/routes';
-import cookieParser from 'cookie-parser';
 import corsConfig from './config/cors';
 
 const app: Application = express();
@@ -19,6 +19,10 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 app.use('/api/v1', routes);
+
+app.get('/health', (_req, res) => {
+  res.json({ success: true, message: 'Server is healthy' });
+});
 
 //global error handler
 app.use(globalErrorHandler);
